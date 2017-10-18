@@ -8,6 +8,7 @@ const path = require("path");
 const foodRoutes = require('./routes/food-routes')
 const mealRoutes = require('./routes/meal-routes')
 const Foods = require('./models/foods')
+const Meals = require('./models/meals')
 
 app.set('port', process.env.PORT || 3000)
 app.locals.title = 'Quantified Self API'
@@ -68,10 +69,29 @@ app.patch('/api/v1/foods/:id', function(request, response){
 
 app.delete('/api/v1/foods/:id', function(request, response){
   const id = request.params.id
-  
+
   Foods.deleteFood(id).then((data) => {
     response.status(201).json(id)
   })
+})
+
+app.get('/api/v1/meals', function(request, response){
+  Meals.allMeals()
+    .then((data) => {
+      Promise.all(
+        data.map((meal) => {
+          return database.raw(
+            'SELECT * FROM foods' +
+            ' INNER JOIN meal_foods ON foods.id = meal_foods.food_id' +
+            ' WHERE meal_foods.meal_id = ?', meal.id
+          ).then(data => data.rows)
+        })
+      )
+      .then((allFoods) => {
+        const meals = Meals.addFoodsToMeals(data, allFoods);
+        response.json(meals);
+      });
+    });
 })
 
 if(!module.parent) {
