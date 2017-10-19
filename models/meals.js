@@ -15,7 +15,12 @@ const allMeals = () => {
   .then(data => data.rows)
 }
 
-const mealWithFoods = (mealID) => {
+const findMeal = (id) => {
+  return database.raw('SELECT * FROM meals WHERE id =' + id)
+  .then(data => data.rows)
+}
+
+const mealsFoods = (mealID) => {
   return database.raw(
     'SELECT * FROM foods' +
     ' INNER JOIN meal_foods ON foods.id = meal_foods.food_id' +
@@ -23,18 +28,33 @@ const mealWithFoods = (mealID) => {
   ).then(data => data.rows)
 }
 
-const addFoodsToMeals = (meals, foods) =>{
+const addFoodToMealDB = (meal_id, food_id) => {
+  return database.raw("INSERT INTO meal_foods (food_id, meal_id, created_at, updated_at) VALUES (?, ?, ?, ?)",
+  [food_id, meal_id, new Date, new Date])
+};
+
+const deleteFoodFromMealDB = (meal_id, food_id) => {
+  return database.raw("DELETE FROM meal_foods WHERE meal_foods.food_id = ? AND meal_foods.meal_id = ?",
+    [food_id, meal_id]
+  )
+};
+
+
+const addFoodsToMealObj = (meals, foods) =>{
   let index = 0;
   return meals.map((meal) => {
-    let mealObj = new Meal(meal);
-    mealObj.foods = foods[index];
+    let mealObject = new Meal(meal);
+    mealObject.foods = foods[index];
     index++;
-    return mealObj;
+    return mealObject;
   });
 };
 
 module.exports = {
   allMeals,
-  mealWithFoods,
-  addFoodsToMeals
+  findMeal,
+  mealsFoods,
+  addFoodsToMealObj,
+  addFoodToMealDB,
+  deleteFoodFromMealDB
 }

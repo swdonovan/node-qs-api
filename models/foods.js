@@ -14,19 +14,17 @@ const allFoods = () => {
 };
 
 const findFood = (id) => {
-  return database.raw("SELECT * FROM foods WHERE id =" + id)
+  return database.raw("SELECT * FROM foods WHERE id =" + [id])
 };
 const destroyAll = () => {
   return database.raw('TRUNCATE foods RESTART IDENTITY')
 };
 const addFood = (food) => {
-  console.log(food)
   return database.raw("INSERT INTO foods (name, calories, created_at, updated_at) VALUES (?, ?, ?, ?) RETURNING id",
   [food.name, food.calories, new Date, new Date])
 };
 const updateFood = (food, id) => {
-  const attrs = [food.name, food.calories, new Date, id]
-  return database.raw("UPDATE foods SET name = ?, calories = ?, updated_at = ? WHERE id = ? RETURNING id, name, calories",
+   return database.raw("UPDATE foods SET name = ?, calories = ?, updated_at = ? WHERE id = ? RETURNING id, name, calories",
   attrs)
 };
 const deleteFood = (id) => {
