@@ -40,7 +40,7 @@ const deleteFoodFromMealDB = (meal_id, food_id) => {
 };
 
 
-const addFoodsToMealObj = (meals, foods) =>{
+const addFoodsToMealObject = (meals, foods) =>{
   let index = 0;
   return meals.map((meal) => {
     let mealObject = new Meal(meal);
@@ -54,7 +54,7 @@ module.exports = {
   allMeals,
   findMeal,
   mealsFoods,
-  addFoodsToMealObj,
+  addFoodsToMealObject,
   addFoodToMealDB,
   deleteFoodFromMealDB
 }

@@ -88,7 +88,7 @@ app.get('/api/v1/meals', function(request, response){
         })
       )
       .then((allFoods) => {
-        const meals = Meals.addFoodsToMealObjd(data, allFoods);
+        const meals = Meals.addFoodsToMealObject(data, allFoods);
         response.json(meals);
       });
     });
@@ -108,7 +108,7 @@ app.get('/api/v1/meals/:meal_id/foods', function(request, response){
         })
       )
       .then((allFoods) => {
-        const meal = Meals.addFoodsToMealObj(data, allFoods);
+        const meal = Meals.addFoodsToMealObject(data, allFoods);
         response.json(meal);
       });
     });
@@ -143,7 +143,6 @@ app.delete('/api/v1/meals/:meal_id/foods/:id', function(request, response){
   ]).then((data) => {
     const meal = data[0][0]
     const food = data[1].rows[0]
-    console.log(data)
     if (meal == undefined || food == undefined) {
       response.status(404).send("Could Not Find Food and/or Meal")
     } else {
