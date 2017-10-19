@@ -8,6 +8,7 @@ const path = require("path");
 const foodRoutes = require('./routes/food-routes')
 const mealRoutes = require('./routes/meal-routes')
 const Foods = require('./models/foods')
+const Meals = require('./models/meals')
 
 app.set('port', process.env.PORT || 3000)
 app.locals.title = 'Quantified Self API'
@@ -68,9 +69,89 @@ app.patch('/api/v1/foods/:id', function(request, response){
 
 app.delete('/api/v1/foods/:id', function(request, response){
   const id = request.params.id
-  
+
   Foods.deleteFood(id).then((data) => {
     response.status(201).json(id)
+  })
+})
+
+app.get('/api/v1/meals', function(request, response){
+  Meals.allMeals()
+    .then((data) => {
+      Promise.all(
+        data.map((meal) => {
+          return database.raw(
+            'SELECT * FROM foods' +
+            ' INNER JOIN meal_foods ON foods.id = meal_foods.food_id' +
+            ' WHERE meal_foods.meal_id = ?', meal.id
+          ).then(data => data.rows)
+        })
+      )
+      .then((allFoods) => {
+        const meals = Meals.addFoodsToMealObjd(data, allFoods);
+        response.json(meals);
+      });
+    });
+})
+
+app.get('/api/v1/meals/:meal_id/foods', function(request, response){
+  const meal_id = request.params.meal_id
+  Meals.findMeal(meal_id)
+    .then((data) => {
+      Promise.all(
+        data.map((meal) => {
+          return database.raw(
+            'SELECT * FROM foods' +
+            ' INNER JOIN meal_foods ON foods.id = meal_foods.food_id' +
+            ' WHERE meal_foods.meal_id = ?', meal.id
+          ).then(data => data.rows)
+        })
+      )
+      .then((allFoods) => {
+        const meal = Meals.addFoodsToMealObj(data, allFoods);
+        response.json(meal);
+      });
+    });
+})
+
+app.post('/api/v1/meals/:meal_id/foods/:id', function(request, response){
+  const meal_id = request.params.meal_id
+  const food_id = request.params.id
+  Promise.all([
+    Meals.findMeal(meal_id),
+    Foods.findFood(food_id)
+  ]).then((data) => {
+    const meal = data[0][0]
+    const food = data[1].rows[0]
+    if (meal == undefined || food == undefined) {
+      response.status(404).send("Could Not Find Food and/or Meal")
+    } else {
+      Meals.addFoodToMealDB(meal.id, food.id)
+      .then((data) => {
+        response.status(201).send('Successfully Added')
+      });
+    }
+  })
+})
+
+app.delete('/api/v1/meals/:meal_id/foods/:id', function(request, response){
+  const meal_id = request.params.meal_id
+  const food_id = request.params.id
+  Promise.all([
+    Meals.findMeal(meal_id),
+    Foods.findFood(food_id)
+  ]).then((data) => {
+    const meal = data[0][0]
+    const food = data[1].rows[0]
+    console.log(data)
+    if (meal == undefined || food == undefined) {
+      response.status(404).send("Could Not Find Food and/or Meal")
+    } else {
+      Meals.deleteFoodFromMealDB(meal.id, food.id)
+      .then((data) => {
+        response.status(201).send('Successfully Deleted')
+      });
+    }
   })
 })
 
