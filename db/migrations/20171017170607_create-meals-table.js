@@ -7,7 +7,6 @@ exports.up = function(knex, Promise) {
       updated_at TIMESTAMP
     )`
     return knex.raw(createQuery)
-  }
 };
 
 exports.down = function(knex, Promise) {
