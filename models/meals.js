@@ -22,7 +22,7 @@ const findMeal = (id) => {
 
 const mealsFoods = (mealID) => {
   return database.raw(
-    'SELECT * FROM foods' +
+    'SELECT foods.name, foods.calories, food_id AS id FROM foods' +
     ' INNER JOIN meal_foods ON foods.id = meal_foods.food_id' +
     ' WHERE meal_foods.meal_id = ?', mealID
   ).then(data => data.rows)
@@ -43,6 +43,7 @@ const deleteFoodFromMealDB = (meal_id, food_id) => {
 const addFoodsToMealObject = (meals, foods) =>{
   let index = 0;
   return meals.map((meal) => {
+    console.log(foods)
     let mealObject = new Meal(meal);
     mealObject.foods = foods[index];
     index++;

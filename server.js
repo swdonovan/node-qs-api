@@ -89,7 +89,7 @@ app.get('/api/v1/meals', function(request, response){
       Promise.all(
         data.map((meal) => {
           return database.raw(
-            'SELECT * FROM foods' +
+            'SELECT foods.name, foods.calories, food_id as id FROM foods' +
             ' INNER JOIN meal_foods ON foods.id = meal_foods.food_id' +
             ' WHERE meal_foods.meal_id = ?', meal.id
           ).then(data => data.rows)
