@@ -1,4 +1,3 @@
-require('dotenv').config()
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
@@ -167,7 +166,5 @@ if(!module.parent) {
     console.log(app.locals.title + " is running on " + app.get('port') + ".")
   })
 }
-// app.use("/api/v1/foods", foodRoutes)
-// app.use("/api/v1/meals", mealRoutes)
 
 module.exports = app
